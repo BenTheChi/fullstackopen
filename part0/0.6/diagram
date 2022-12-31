@@ -1,0 +1,4 @@
+sequenceDiagram
+Note over browser: Browser displays the note by pushing to array and reloading all notes
+browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa - PAYLOAD {content: "note text", date: "2022-12-31T18:45:09.728Z"}
+server->>browser: JSON {"message":"note created"}
