@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios';
 
-const PersonForm = ({newName, newPhone, handleNewNameChange, handleNewPhoneChange, addName}) => {
+const PersonForm = ({newName, newNumber, handleNewNameChange, handleNewnumberChange, addName}) => {
   return (
     <form onSubmit={addName}>
     <div>
       name: <input value={newName} onChange={handleNewNameChange}/>
     </div>
     <div>
-      number: <input value={newPhone} onChange={handleNewPhoneChange}/>
+      number: <input value={newNumber} onChange={handleNewnumberChange}/>
     </div>
     <div>
       <button type="submit">add</button>
@@ -24,7 +25,7 @@ const Filter = ({filterContacts}) => {
 
 const Person = ({person}) => {
   return (
-    <div>{person.name}: {person.phone}</div>
+    <div>{person.name}: {person.number}</div>
   )
 }
 
@@ -37,23 +38,30 @@ const Persons = ({filteredPersons}) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', phone: '12345678', id: 1 },
-    { name: 'Ada Lovelace', phone: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', phone: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', phone: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [filteredPersons, setFilteredPersons] = useState(persons);
   const [newName, setNewName] = useState('');
-  const [newPhone, setNewPhone] = useState('');
+  const [newNumber, setnewNumber] = useState('');
+
+  const hook = () => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data);
+        setFilteredPersons(response.data);
+      })
+  }
+  
 
   const handleNewNameChange = event => {
     setNewName(event.target.value);
   }
 
-  const handleNewPhoneChange = event => {
-    setNewPhone(event.target.value);
+  const handleNewnumberChange = event => {
+    setnewNumber(event.target.value);
   }
+
+  useEffect(hook, [])
 
   const filterContacts = event => {
     let newFilteredPersons = persons.filter( person => {
@@ -75,11 +83,11 @@ const App = () => {
     })
 
     if(!exists){
-      let newArray = persons.concat({name: newName, phone: newPhone});
+      let newArray = persons.concat({name: newName, number: newNumber});
       setPersons(newArray);
       setFilteredPersons(newArray);
       setNewName('');
-      setNewPhone('');
+      setnewNumber('');
     }
     
   }
@@ -89,9 +97,9 @@ const App = () => {
       <h2>Phonebook</h2>
       filter shown with <Filter filterContacts={filterContacts}/>
       <h3>Add a New Contact</h3>
-      <PersonForm newName={newName} newPhone={newPhone} handleNewNameChange={handleNewNameChange} handleNewPhoneChange={handleNewPhoneChange} addName={addName}/>
+      <PersonForm newName={newName} newNumber={newNumber} handleNewNameChange={handleNewNameChange} handleNewnumberChange={handleNewnumberChange} addName={addName}/>
       <h2>Numbers</h2>
-        <Persons filteredPersons={filteredPersons} />
+      <Persons filteredPersons={filteredPersons} />
 
         
     </div>
