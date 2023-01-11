@@ -1,6 +1,30 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 
+const Weather = ({country}) => {
+  const [weather, setWeather] = useState(<div></div>);
+
+  useEffect(()=> {
+    const api_key = process.env.REACT_APP_API_KEY;
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/onecall?lat=${country["latlng"][0]}&lon=${country["latlng"][1]}&units=imperial&appid=${api_key}`)
+      .then(response => {
+        console.log('promise fulfilled')
+        console.log(response.data);
+        setWeather(
+          <div>
+            Weather In {country.name.common}<br/>
+            Temperature {response.data.current.temp}<br/>
+            <img src={`http://openweathermap.org/img/wn/${response.data.current.weather.icon}@2x.png`} alt={response.data.current.weather.description} /><br/>
+            Wind {response.data.current.wind_speed}<br/>
+          </div>
+        )
+      })
+  })
+
+  return weather;
+}
+
 const Capital = ({capital}) => {
   return(
     <li>{capital}</li>
@@ -15,8 +39,16 @@ const Language = ({language}) => {
   )
 }
 
-const Country = ({country, details}) => {
-  console.log(country, details)
+const Country = ({country, single}) => {
+  const [details, setDetails] = useState(false);
+
+  useEffect(() => {
+    if(single) setDetails(true)
+  }, [single])
+
+  const handleClick = () => {
+    setDetails(!details);
+  }
 
   if(details){
 
@@ -36,11 +68,15 @@ const Country = ({country, details}) => {
           {allLanguages.map( language => <Language key={`${language}-key`} language={language}/>)}
         </ul>
         <h1>{country.flag}</h1>
+        <Weather country={country}/>
       </div>
     )
   } else {
     return (
-      <li> {country.name.common} </li>
+      <li> 
+        {country.name.common} 
+        <button onClick={handleClick}> Show </button>
+      </li>
     )
   }
   
@@ -56,12 +92,12 @@ const CountriesList = ({countries, filter}) => {
   } else if(filteredCountries.length === 1){
     const country = filteredCountries[0];
     return (
-      <Country country={country} details={true}/>
+      <Country country={country} single={true}/>
     )
   } else if(filteredCountries.length < 10){
     return(
       <ul>
-        {filteredCountries.map( country => <Country key={`${country.name.common}-key`} country={country} details={false}/>)}
+        {filteredCountries.map( country => <Country key={`${country.name.common}-key`} country={country} single={false}/>)}
       </ul>
     )
   }

@@ -5,7 +5,7 @@ const Course = ({id, name, parts}) => {
     <li key={id}>
       <h1>{name}</h1>
       <ul>
-        {parts.map(part => 
+        {parts.map(part =>  
             <li key={part.id}>{part.name} {part.exercises}</li>
         )}
       </ul>
